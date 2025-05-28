@@ -1,14 +1,12 @@
-
 import fastify from 'fastify';
-
 import * as fastifyMySQL from '@fastify/mysql';
-
 import bcrypt from 'bcrypt';
 import jwt from 'fastify-jwt';
 import authPlugin from './authPlugin.js';
-import cors from '@fastify/cors'
+import cors from '@fastify/cors';
 import dotenv from 'dotenv';
-dotenv.config({ path: '../.env' });
+
+dotenv.config(); // fixed path
 
 import routes from './routes/index.js';
 
@@ -16,12 +14,21 @@ const app = fastify({ logger: true });
 
 app.register(cors, { origin: true });
 
-await app.register(import('@fastify/swagger'))
-await app.register(import('@fastify/swagger-ui'))
-await app.register(import('@fastify/rate-limit'), { max: 200, timeWindow: '1 minute' })
-app.register(jwt, { secret: 'TOPSECRET' });
+await app.register(import('@fastify/swagger'));
+await app.register(import('@fastify/swagger-ui'));
+await app.register(import('@fastify/rate-limit'), { max: 200, timeWindow: '1 minute' });
+
+app.register(jwt, { secret: process.env.JWT_SECRET }); // added .env support
 app.register(authPlugin);
-app.register(fastifyMySQL, { promise: true, connectionString: process.env.DATABASE_URL });
+
+// ✅ UPDATED: use explicit database settings from .env
+app.register(fastifyMySQL, {
+  promise: true,
+  host: process.env.DATABASE_HOST,
+  user: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME
+});
 
 app.post('/login', async (request, reply) => {
   const { username, password } = request.body;
@@ -63,34 +70,20 @@ app.get('/api', { preValidation: [app.authenticate] }, async (req, reply) => {
   reply.send({ message: 'Você está autenticado!' });
 });
 
-app.register(routes.categoriesRoutes, { prefix: '/api/categories' })
-app.register(routes.clientsRoutes, { prefix: '/api/clients' })
-app.register(routes.addressesRoutes, { prefix: '/api/addresses' })
-app.register(routes.ordersRoutes, { prefix: '/api/orders' })
-app.register(routes.productsRoutes, { prefix: '/api/products' })
-app.register(routes.ordersProductsRoutes, { prefix: '/api/orders/products' })
-
-/*
-app.register(swagger, {
-  exposeRoute: true,
-  routePrefix: '/documentation',
-  swagger: {
-    info: {
-      title: 'API de Exemplo',
-      description: 'Documentação da API de Exemplo',
-      version: '1.0.0'
-    }
-  }
-});
-*/
+app.register(routes.categoriesRoutes, { prefix: '/api/categories' });
+app.register(routes.clientsRoutes, { prefix: '/api/clients' });
+app.register(routes.addressesRoutes, { prefix: '/api/addresses' });
+app.register(routes.ordersRoutes, { prefix: '/api/orders' });
+app.register(routes.productsRoutes, { prefix: '/api/products' });
+app.register(routes.ordersProductsRoutes, { prefix: '/api/orders/products' });
 
 app.get('/', async (request, reply) => {
   return { hello: 'world' };
 });
 
 app.listen({ port: 3000 }, (error, address) => {
-    if (error) {
-      console.log(error);
-      process.exit(1);    
-    }
+  if (error) {
+    console.log(error);
+    process.exit(1);    
+  }
 });
