@@ -12,9 +12,9 @@ services:
     ports:
       - "3306:3306"
 
-  backend:
+  back:
     build:
-      context: ./backend
+      context: ./back
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
@@ -25,14 +25,14 @@ services:
     depends_on:
       - mysql-db
 
-  frontend:
+  front:
     build:
-      context: ./frontend
+      context: ./front
       dockerfile: Dockerfile
     ports:
       - "80:80"
     depends_on:
-      - backend
+      - back
 
 volumes:
   db-data:
