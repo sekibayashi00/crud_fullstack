@@ -1,14 +1,14 @@
-
 FROM node:20.11.0
 
-WORKDIR ./src
+# Set working directory to /app
+WORKDIR /app
 
+# Copy package files and install dependencies
 COPY package*.json ./
-
 RUN npm install
 
+# Copy all source code
 COPY . .
 
-EXPOSE 3000
-
-CMD [ "npm", "start" ]
+# Run the backend entry point
+CMD ["node", "src/index.js"]
