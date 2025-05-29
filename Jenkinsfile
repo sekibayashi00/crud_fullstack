@@ -73,9 +73,12 @@ pipeline {
 
     stage('Deploy') {
       steps {
-        echo '🚀 Simulating deployment (e.g., to test environment)'
-        dir('front/dist') {
-          sh 'ls -l || echo "⚠️ Build folder not found"'
+        echo '🚀 Deploying application to test environment using Docker Compose'
+        sh '''
+          docker-compose down || true
+          docker-compose up -d --build
+        '''
+        sh 'docker-compose ps'
         }
       }
     }
