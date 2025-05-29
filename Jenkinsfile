@@ -86,7 +86,8 @@ pipeline {
         sh '''
           git config user.name "jenkins"
           git config user.email "jenkins@example.com"
-          git tag -a v1.0.0 -m "Release v1.0.0"
+          git tag -fa v1.0.0 -m "Release v1.0.0"
+
           git push origin v1.0.0 || echo "⚠️ Could not push tag"
         '''
       }
