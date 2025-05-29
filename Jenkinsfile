@@ -7,8 +7,6 @@ pipeline {
 
   environment {
     NODE_ENV = 'development'
-    AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
   }
 
   stages {
@@ -75,13 +73,10 @@ pipeline {
 
     stage('Deploy') {
       steps {
-        echo '🚀 Deploying backend to AWS Elastic Beanstalk'
-        dir('back') {
-          sh '''
-            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-            eb deploy
-          '''
+        echo '🚀 Simulating deployment (e.g., move to staging folder)'
+        //only a simulation, no actual deployment
+        dir('front/dist') {
+          sh 'ls -l || echo "⚠️ No build output to deploy."'
         }
       }
     }
@@ -100,10 +95,9 @@ pipeline {
 
     stage('Monitoring') {
       steps {
-        echo '📊 Simulating monitoring — pinging deployed app'
-        // Optional: Replace with actual EB app health URL
+        echo '📊 Simulating monitoring — healthcheck of deployed app'
         sh '''
-          curl --fail https://your-eb-env.elasticbeanstalk.com/health || echo "⚠️ Health check failed"
+          curl --fail http://localhost:3000/health || echo "⚠️ Health check failed"
         '''
       }
     }
