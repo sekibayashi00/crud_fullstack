@@ -1,6 +1,10 @@
 pipeline {
   agent any
 
+  tools {
+    nodejs 'NodeJS-18' // <-- Must match the name you set in Global Tool Configuration!
+  }
+
   environment {
     NODE_ENV = 'development'
   }
