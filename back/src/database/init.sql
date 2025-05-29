@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS cliente (
+  cliente_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  senha TEXT NOT NULL,
+  email TEXT,
+  cpf TEXT
+);
