@@ -7,6 +7,9 @@ pipeline {
 
   environment {
     NODE_ENV = 'development'
+    // Fix Docker daemon connection
+    PATH = "/usr/local/bin:${env.PATH}"
+    DOCKER_HOST = "unix:///Users/slimeto/Library/Containers/com.docker.docker/Data/docker-cli.sock"
   }
 
   stages {
@@ -74,6 +77,10 @@ pipeline {
     stage('Deploy') {
       steps {
         echo '🚀 Deploying application to test environment using Docker Compose'
+        // Add Docker debugging (remove after testing)
+        sh 'docker --version'
+        sh 'docker info || echo "⚠️ Docker not accessible"'
+        
         sh '''
           docker compose down || true
           docker compose up -d --build
@@ -97,6 +104,8 @@ pipeline {
     stage('Monitoring') {
       steps {
         echo '📊 Simulating monitoring — basic healthcheck'
+        // Add a small delay to let containers start
+        sh 'sleep 10'
         sh '''
           curl --fail http://localhost:3000/health || echo "⚠️ Health check failed"
         '''
