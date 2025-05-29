@@ -78,7 +78,7 @@ pipeline {
           docker-compose down || true
           docker-compose up -d --build
         '''
-        sh 'docker-compose ps'
+        sh 'docker compose ps'
       }
     }
 
