@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   tools {
-    nodejs 'NodeJS-18' // <-- Must match the name you set in Global Tool Configuration!
+    nodejs 'NodeJS-18'
   }
 
   environment {
@@ -13,7 +13,7 @@ pipeline {
     stage('Build') {
       steps {
         echo '📦 Installing dependencies and building backend and frontend'
-        dir('.') {
+        dir('back') {
           sh 'npm install'
         }
         dir('front') {
@@ -26,7 +26,7 @@ pipeline {
     stage('Test') {
       steps {
         echo '🧪 Running backend and frontend tests'
-        dir('.') {
+        dir('back') {
           sh 'npm test || echo "⚠️ Backend tests not found or failed."'
         }
         dir('front') {
@@ -38,7 +38,7 @@ pipeline {
     stage('Code Quality') {
       steps {
         echo '🧹 Running ESLint for code quality analysis'
-        dir('.') {
+        dir('back') {
           sh 'npx eslint . || echo "⚠️ Lint issues detected."'
         }
       }
@@ -47,7 +47,7 @@ pipeline {
     stage('Security') {
       steps {
         echo '🔐 Running npm audit for security analysis'
-        dir('.') {
+        dir('back') {
           sh 'npm audit || echo "⚠️ Vulnerabilities found (see report)."'
         }
       }
@@ -56,8 +56,7 @@ pipeline {
     stage('Deploy') {
       steps {
         echo '🚀 Simulating deployment (e.g., to test environment)'
-        // This would normally be something like Docker Compose, SCP, etc.
-        dir('front/build') {
+        dir('front/dist') {
           sh 'ls -l || echo "⚠️ Build folder not found"'
         }
       }
