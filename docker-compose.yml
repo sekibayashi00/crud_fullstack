@@ -1,18 +1,27 @@
-version: '3.8'
+# Remove version line (obsolete in newer Docker Compose)
 services:
   backend:
-    build: ./back
+    image: node:18-alpine
     working_dir: /usr/src/app
-    command: npm start
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules  # Prevent overriding node_modules
+    command: sh -c "npm install && npm start"
     ports:
       - "3000:3000"
-    volumes:
-      - ./back:/usr/src/app
+    environment:
+      - NODE_ENV=development
+
   frontend:
-    build: ./front
+    image: node:18-alpine
     working_dir: /usr/src/app
-    command: npm run preview
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules  # Prevent overriding node_modules
+    command: sh -c "npm install && npm run preview"
     ports:
       - "5173:5173"
-    volumes:
-      - ./front:/usr/src/app
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
