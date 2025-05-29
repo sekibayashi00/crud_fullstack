@@ -35,11 +35,29 @@ pipeline {
       }
     }
 
-    stage('Code Quality') {
+    stage('Code Quality (ESLint)') {
       steps {
         echo '🧹 Running ESLint for code quality analysis'
         dir('back') {
           sh 'npx eslint . || echo "⚠️ Lint issues detected."'
+        }
+      }
+    }
+
+    stage('Code Quality (SonarCloud)') {
+      environment {
+        SONAR_TOKEN = credentials('SONAR_TOKEN7.3')
+      }
+      steps {
+        dir('back') {
+          sh '''
+            npx sonar-scanner \
+              -Dsonar.organization=sekibayashi00 \
+              -Dsonar.projectKey=sekibayashi00_crud_fullstack \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.login=$SONAR_TOKEN
+          '''
         }
       }
     }
