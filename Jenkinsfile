@@ -7,9 +7,8 @@ pipeline {
 
   environment {
     NODE_ENV = 'development'
-    // Fix Docker daemon connection
-    PATH = "/usr/local/bin:${env.PATH}"
-    DOCKER_HOST = "unix:///Users/slimeto/Library/Containers/com.docker.docker/Data/docker-cli.sock"
+    AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
   }
 
   stages {
@@ -76,16 +75,14 @@ pipeline {
 
     stage('Deploy') {
       steps {
-        echo '🚀 Deploying application to test environment using Docker Compose'
-        // Add Docker debugging (remove after testing)
-        sh 'docker --version'
-        sh 'docker info || echo "⚠️ Docker not accessible"'
-        
-        sh '''
-          docker compose down || true
-          docker compose up -d --build
-        '''
-        sh 'docker compose ps'
+        echo '🚀 Deploying backend to AWS Elastic Beanstalk'
+        dir('back') {
+          sh '''
+            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+            eb deploy
+          '''
+        }
       }
     }
 
@@ -103,11 +100,10 @@ pipeline {
 
     stage('Monitoring') {
       steps {
-        echo '📊 Simulating monitoring — basic healthcheck'
-        // Add a small delay to let containers start
-        sh 'sleep 10'
+        echo '📊 Simulating monitoring — pinging deployed app'
+        // Optional: Replace with actual EB app health URL
         sh '''
-          curl --fail http://localhost:3000/health || echo "⚠️ Health check failed"
+          curl --fail https://your-eb-env.elasticbeanstalk.com/health || echo "⚠️ Health check failed"
         '''
       }
     }
